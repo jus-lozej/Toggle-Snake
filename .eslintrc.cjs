@@ -19,6 +19,5 @@ module.exports = {
     ],
     "no-prototype-builtins": "off",
     "no-console": ["warn", { allow: ["warn", "error"] }],
-    "no-unused-vars": "warn",
   },
 };

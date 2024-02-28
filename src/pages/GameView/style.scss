@@ -1,0 +1,19 @@
+.game-view {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+
+  .game-map {
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+
+    .game-map-row {
+      display: flex;
+      flex-direction: row;
+
+      gap: 5px;
+    }
+  }
+}

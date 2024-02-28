@@ -1,0 +1,31 @@
+.toggle {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 24px;
+
+  background-color: #d9d9d9;
+  border-radius: 12px;
+  .circle {
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    background-color: #4a4a4a;
+    margin: 3px;
+    border-radius: 50%;
+
+    transition-property: transform, background-color;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
+
+    &.snake {
+      background-color: #bed04a;
+      transform: translate(24px);
+    }
+
+    &.cherry {
+      background-color: #d04a4a;
+      transform: translate(12px);
+    }
+  }
+}
