@@ -9,22 +9,20 @@ const MAP_START = [
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 1, 2, 3, 4, 5, 0, 0],
+  [0, 1, 2, 3, 0, 0, -1, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
-const updateMap = (map, snakeDirection) => {
+const updateMap = (map, snakeDirection, score, setScore = () => {}) => {
   const newMap = JSON.parse(JSON.stringify(map));
-  let max = 0;
   let maxLoc = { x: null, y: null };
   for (let y in map) {
     for (let x in map[y]) {
       const current = map[y][x];
-      if (current > max) {
-        max = current;
+      if (current == score) {
         maxLoc = { x, y };
       }
       if (current > 0) {
@@ -36,31 +34,60 @@ const updateMap = (map, snakeDirection) => {
 
   if (snakeDirection == 6) {
     if (maxLoc.x + 1 < map[maxLoc.y].length) {
-      newMap[maxLoc.y][maxLoc.x + 1] = max;
+      if (newMap[maxLoc.y][maxLoc.x + 1] == -1) {
+        // Cherry collision
+        newMap[maxLoc.y][maxLoc.x + 1] = score + 1;
+        setScore(score + 1);
+      } else {
+        newMap[maxLoc.y][maxLoc.x + 1] = score;
+      }
     } else {
       // Wall collision
-      newMap[maxLoc.y][0] = max;
+      // Currently teleport to other side
+      newMap[maxLoc.y][0] = score;
     }
   } else if (snakeDirection == 2) {
     if (maxLoc.y + 1 < map.length) {
-      newMap[maxLoc.y + 1][maxLoc.x] = max;
+      if (newMap[maxLoc.y + 1][maxLoc.x] == -1) {
+        // Cherry collision
+        newMap[maxLoc.y + 1][maxLoc.x] = score + 1;
+        setScore(score + 1);
+      } else {
+        newMap[maxLoc.y + 1][maxLoc.x] = score;
+      }
+      newMap[maxLoc.y + 1][maxLoc.x] = score;
     } else {
       // Wall collision
-      newMap[0][maxLoc.x] = max;
+      // Currently teleport to other side
+      newMap[0][maxLoc.x] = score;
     }
   } else if (snakeDirection == 4) {
     if (maxLoc.x - 1 >= 0) {
-      newMap[maxLoc.y][maxLoc.x - 1] = max;
+      if (newMap[maxLoc.y][maxLoc.x - 1] == -1) {
+        // Cherry collision
+        newMap[maxLoc.y][maxLoc.x - 1] = score + 1;
+        setScore(score + 1);
+      } else {
+        newMap[maxLoc.y][maxLoc.x - 1] = score;
+      }
     } else {
       // Wall collision
-      newMap[maxLoc.y][newMap[maxLoc.y].length - 1] = max;
+      // Currently teleport to other side
+      newMap[maxLoc.y][newMap[maxLoc.y].length - 1] = score;
     }
   } else if (snakeDirection == 8) {
     if (maxLoc.y - 1 >= 0) {
-      newMap[maxLoc.y - 1][maxLoc.x] = max;
+      if (newMap[maxLoc.y - 1][maxLoc.x] == -1) {
+        // Cherry collision
+        newMap[maxLoc.y - 1][maxLoc.x] = score + 1;
+        setScore(score + 1);
+      } else {
+        newMap[maxLoc.y - 1][maxLoc.x] = score;
+      }
     } else {
       // Wall collision
-      newMap[map.length - 1][maxLoc.x] = max;
+      // Currently teleport to other side
+      newMap[map.length - 1][maxLoc.x] = score;
     }
   }
   return newMap;
@@ -70,10 +97,14 @@ export const GameProvider = ({ children = <></> }) => {
   const [gameMap, setGameMap] = useState(MAP_START);
   const [tickRate, setTickRate] = useState(null);
   const [ticking, setTicking] = useState(false);
+  const [score, setScore] = useState(3);
+
   const snakeDirection = useSnake(6);
 
   useInterval(() => {
-    const newMap = updateMap(gameMap, snakeDirection);
+    const newMap = updateMap(gameMap, snakeDirection, score, (score) =>
+      setScore(score),
+    );
 
     setGameMap(newMap);
   }, tickRate);

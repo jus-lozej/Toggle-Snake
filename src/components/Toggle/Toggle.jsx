@@ -7,7 +7,7 @@ const Toggle = ({ state = 0 }) => {
     snake: state > 0,
     tail: state == 1,
     //head: state == 3,
-    //cherry: state == 6,
+    cherry: state == -1,
   });
 
   return (
