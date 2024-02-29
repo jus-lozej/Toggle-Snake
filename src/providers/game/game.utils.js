@@ -1,11 +1,4 @@
-import { createContext, useContext, useState } from "react";
-import PropTypes from "prop-types";
-import { useInterval } from "../hooks/useInterval";
-import useSnake from "../hooks/useSnake";
-
-const GameContext = createContext(null);
-
-const MAP_START = [
+export const MAP_START = [
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0],
@@ -16,15 +9,30 @@ const MAP_START = [
   [0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
-const updateMap = (map, snakeDirection, score, setScore = () => {}) => {
+const sampleRandomLocation = (locations = []) => {
+  return { ...locations[Math.floor(Math.random() * locations.length)] };
+};
+
+export const updateMap = (
+  map = [],
+  snakeDirection = 6,
+  score = 3,
+  setScore = () => {},
+) => {
   const newMap = JSON.parse(JSON.stringify(map));
   let maxLoc = { x: null, y: null };
+
+  const emptyLocations = [];
   for (let y in map) {
     for (let x in map[y]) {
       const current = map[y][x];
+      if (current == 0) {
+        emptyLocations.push({ x, y });
+      }
       if (current == score) {
         maxLoc = { x, y };
       }
+
       if (current > 0) {
         newMap[y][x]--;
       }
@@ -38,6 +46,10 @@ const updateMap = (map, snakeDirection, score, setScore = () => {}) => {
         // Cherry collision
         newMap[maxLoc.y][maxLoc.x + 1] = score + 1;
         setScore(score + 1);
+
+        // Create new cherry
+        const cherryLoc = sampleRandomLocation(emptyLocations);
+        newMap[cherryLoc.y][cherryLoc.x] = -1;
       } else {
         newMap[maxLoc.y][maxLoc.x + 1] = score;
       }
@@ -52,10 +64,13 @@ const updateMap = (map, snakeDirection, score, setScore = () => {}) => {
         // Cherry collision
         newMap[maxLoc.y + 1][maxLoc.x] = score + 1;
         setScore(score + 1);
+
+        // Create new cherry
+        const cherryLoc = sampleRandomLocation(emptyLocations);
+        newMap[cherryLoc.y][cherryLoc.x] = -1;
       } else {
         newMap[maxLoc.y + 1][maxLoc.x] = score;
       }
-      newMap[maxLoc.y + 1][maxLoc.x] = score;
     } else {
       // Wall collision
       // Currently teleport to other side
@@ -67,6 +82,10 @@ const updateMap = (map, snakeDirection, score, setScore = () => {}) => {
         // Cherry collision
         newMap[maxLoc.y][maxLoc.x - 1] = score + 1;
         setScore(score + 1);
+
+        // Create new cherry
+        const cherryLoc = sampleRandomLocation(emptyLocations);
+        newMap[cherryLoc.y][cherryLoc.x] = -1;
       } else {
         newMap[maxLoc.y][maxLoc.x - 1] = score;
       }
@@ -81,6 +100,10 @@ const updateMap = (map, snakeDirection, score, setScore = () => {}) => {
         // Cherry collision
         newMap[maxLoc.y - 1][maxLoc.x] = score + 1;
         setScore(score + 1);
+
+        // Create new cherry
+        const cherryLoc = sampleRandomLocation(emptyLocations);
+        newMap[cherryLoc.y][cherryLoc.x] = -1;
       } else {
         newMap[maxLoc.y - 1][maxLoc.x] = score;
       }
@@ -91,43 +114,4 @@ const updateMap = (map, snakeDirection, score, setScore = () => {}) => {
     }
   }
   return newMap;
-};
-
-export const GameProvider = ({ children = <></> }) => {
-  const [gameMap, setGameMap] = useState(MAP_START);
-  const [tickRate, setTickRate] = useState(null);
-  const [ticking, setTicking] = useState(false);
-  const [score, setScore] = useState(3);
-
-  const snakeDirection = useSnake(6);
-
-  useInterval(() => {
-    const newMap = updateMap(gameMap, snakeDirection, score, (score) =>
-      setScore(score),
-    );
-
-    setGameMap(newMap);
-  }, tickRate);
-
-  const stopTick = () => {
-    setTicking(false);
-    setTickRate(null);
-  };
-
-  const startTick = (tickRate) => {
-    setTickRate(tickRate);
-    setTicking(true);
-  };
-
-  const value = { gameMap, ticking, stopTick, startTick };
-
-  return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
-};
-GameProvider.propTypes = {
-  children: PropTypes.element,
-};
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const useGame = () => {
-  return useContext(GameContext);
 };

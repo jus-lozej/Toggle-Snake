@@ -1,5 +1,5 @@
 import GameView from "./pages/GameView/GameView";
-import { GameProvider } from "./providers/game";
+import GameProvider from "./providers/game";
 
 function App() {
   return (

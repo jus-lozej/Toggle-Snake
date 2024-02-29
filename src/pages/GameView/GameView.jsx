@@ -1,5 +1,5 @@
 import Toggle from "../../components/Toggle/Toggle";
-import { useGame } from "../../providers/game";
+import { useGame } from "../../providers/game/game";
 import "./style.scss";
 
 const GameView = () => {
